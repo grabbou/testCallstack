@@ -1,10 +1,19 @@
+
 import React from 'react';
 import { render } from 'react-dom';
-import './index.css';
 
-const App = () => (
+import { Provider } from 'react-redux';
+import createStore from './reduxApp/create.jsx';
+import PostList from 'containers/PostList/';
 
-	<div> paki </div>
-);
 
-render(<App />, document.getElementById('app'));
+window.onload = () => {
+    const root = document.getElementById('app');
+    const store = createStore();
+	render((
+		<Provider store={store} >
+			<PostList />
+		</Provider>
+		), root
+	);
+};
