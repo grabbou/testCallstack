@@ -18,7 +18,7 @@ module.exports = {
     port: port,
     output: {
         path: path.resolve(__dirname, 'build'),
-        publicPath : 'http://' + host + ':' + port + '/',
+        //publicPath : 'http://' + host + ':' + port + '/',
         filename: 'bundle.js',
     },
     module: {
