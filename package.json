@@ -6,12 +6,7 @@
   "scripts": {
     "dev": "node node_modules/webpack-dev-server/bin/webpack-dev-server.js --host 0.0.0.0  --content-base build --devtool eval --progress --colors  --hot --inline",
     "deploy": "rm -rf ./dist && NODE_ENV='production' node_modules/webpack/bin/webpack.js -p --config webpack.production.config.js",
-     "publish": "git checkout gh-pages && 
-               git merge master &&
-               npm run deploy &&
-               git commit -am 'Deploy' &&
-               git push origin gh-pages &&
-               git checkout @{-1}"
+     "publish": "git checkout gh-pages && git merge master && npm run deploy && git commit -am 'Deploy' && git push origin gh-pages && git checkout @{-1}"
   },
   "author": "",
   "license": "ISC",
