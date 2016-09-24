@@ -14,7 +14,7 @@ module.exports = {
 
     output: {
         path: path.resolve(__dirname, 'dist'),
-        publicPath: 'http://localhost:7000/',
+        //publicPath: 'http://localhost:7000/',
         filename: 'app.[hash].js',
     },
     devtool: 'source-map',
