@@ -3,7 +3,7 @@ const initState = {
 	totalPages: 10,
 	activePage: 1,
 	searchQuery: '',
-	perPage: 2,
+	perPage: 5,
 	sortField: null,
 	sortDirection: null,
 };
@@ -12,14 +12,17 @@ const initState = {
 export function reducer(state = initState, action) {
 	switch(action.type) {
 		case 'SET_PAGE': {
-			return { ...state, activePage: action.paylod }
+			return { ...state, activePage: action.paylod };
+		}
+		case 'SET_SIZE': {
+			return { ...state, perPage: action.paylod };
 		}
 		case 'RECIEVE_POSTS': {
 			const { items, count } = action.paylod;
-			return { ...state, posts: items, totalPages: Math.ceil(count / state.perPage)  }
+			return { ...state, posts: items, totalPages: Math.ceil(count / state.perPage)  };
 		}
 		case 'SET_SEARCH': {
-			return { ...state, searchQuery: action.paylod }
+			return { ...state, searchQuery: action.paylod };
 		}
 		case 'TOGGLE_SORT': {
 			const field = action.paylod;
@@ -103,6 +106,12 @@ export function loadPosts() {
 	};
 }
 
+export function changeSize(perPage){
+	return (dispatch) => {
+		dispatch({ type: 'SET_SIZE', paylod: perPage });
+		dispatch(fetchPosts());
+	};
+}
 
 
 function setPage(page) {
