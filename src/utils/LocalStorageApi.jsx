@@ -1,37 +1,73 @@
-import _ from 'lodash';
-const posts = [
-		{ id: 1, userName: 'petya', userId: 1, title: 'title1', views: 2, likes: 3, crearedAt: new Date() },
-		{ id: 2, userName: 'user2', userId: 2, title: 'title2', views: 3, likes: 4, crearedAt: new Date() },
-		{ id: 3, userName: 'user3', userId: 3, title: 'title3', views: 45, likes: 45, crearedAt: new Date() },
-		{ id: 4, userName: 'user4', userId: 4, title: 'title4', views: 35, likes: 44, crearedAt: new Date() },
-		{ id: 5, userName: 'user5', userId: 5, title: 'titl54', views: 355, likes: 454, crearedAt: new Date() },
-		{ id: 6, userName: 'user5', userId: 5, title: 'titl54', views: 355, likes: 454, crearedAt: new Date() },
-		{ id: 7, userName: 'user5', userId: 5, title: 'titl54', views: 355, likes: 454, crearedAt: new Date() },
-		{ id: 9, userName: 'user5', userId: 5, title: 'titl54', views: 355, likes: 454, crearedAt: new Date() },
-		{ id: 10, userName: 'vasya', userId: 5, title: 'titl54', views: 355, likes: 454, crearedAt: new Date() },
+import firstBy from 'thenby';
+const DELAY = 100;
 
+function getItems(url, defaultItems) {
+    if (!localStorage.getItem(url)) {
+        localStorage.setItem(url, JSON.stringify(defaultItems));
+    }
 
+    return JSON.parse(localStorage.getItem(url));
+}
 
-];
+function makeSearch(params) {
+    return (item) => {
+        let add = true;
 
-function Api(url) {
-	this.getPage = function(query, page, perPage = 10) {
-		return new Promise( function(resolve, reject) {
-			setTimeout(function() {
-				var _page = page || 1;
-			    var offset = (_page - 1) * perPage;
-			    var matchesFilter = new RegExp(query.userName, 'i');
-			    var _posts = posts.filter(post => !query.userName || matchesFilter.test(post.userName));
-			    var paginatedItems = _posts.slice(offset, offset + perPage);
-			    //_.rest(posts, offset).slice(0, per_page);
-			    console.log(_page, paginatedItems);
-					resolve({
-						items: paginatedItems,
-						count: _posts.length,
-					});			
-			}, 100);
-		});
-	}
+        if (params) {
+            for (const key in params) {
+                if (params[key] && item[key]) {
+                    const match = new RegExp(params[key], 'i');
+                    add = add && match.test(item[key]);
+                }
+            }
+        }
+
+        return add;
+    };
+}
+
+function getOnePage(items, page, perPage) {
+    const offset = (page - 1) * perPage;
+    return items.slice(offset, offset + perPage);
+}
+
+function Api(url, defaultItems = []) {
+    this.create = (data) => new Promise((resolve) => {
+        setTimeout(() => {
+            const newItem = { ...data, id: new Date().getTime(), createAt: new Date() };
+
+            const items = getItems(url, defaultItems);
+
+            items.push(newItem);
+            localStorage.setItem(url, JSON.stringify(items));
+
+            resolve(newItem);
+        }, DELAY);
+    });
+
+    this.getPage = (filter, sort, page = 1, perPage = 10) => {
+        let items = getItems(url, defaultItems);
+
+        items = items.filter(makeSearch(filter));
+
+        if (sort) {
+            items.sort(
+                firstBy(sort.field, {
+                    ignoreCase: true,
+                    direction: sort.direction === 'asc' ? 1 : -1,
+                })
+            );
+        }
+
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                resolve({
+                    items: getOnePage(items, page, perPage),
+                    count: items.length,
+                });
+            }, DELAY);
+        });
+    };
 }
 
 export default Api;
