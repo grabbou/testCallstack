@@ -16,5 +16,5 @@ window.onload = () => {
 		</Provider>
 		), root
 	);
-	store.dispatch(startSession({ id: 5 }));
+	store.dispatch(startSession({ id: 5, name: 'Use Tom' }));
 };

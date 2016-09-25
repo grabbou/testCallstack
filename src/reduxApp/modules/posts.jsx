@@ -6,6 +6,7 @@ const initState = {
 	perPage: 5,
 	sortField: null,
 	sortDirection: null,
+	showAddPopup: false,
 };
 
 
@@ -23,6 +24,9 @@ export function reducer(state = initState, action) {
 		}
 		case 'SET_SEARCH': {
 			return { ...state, searchQuery: action.paylod };
+		}
+		case 'SET_POPUP_VISIBLE': {
+			return { ...state, showAddPopup: action.paylod };
 		}
 		case 'TOGGLE_SORT': {
 			const field = action.paylod;
@@ -42,15 +46,80 @@ export function reducer(state = initState, action) {
 
 import _ from 'lodash';
 const posts = [
-		{ id: 1, userName: 'petya', userId: 1, title: 'title1', views: 2, likes: 3, createdAt: new Date(2016, 9, 1) },
-		{ id: 2, userName: 'user2', userId: 2, title: 'title2', views: 3, likes: 4, createdAt: new Date(2016, 9, 1) },
-		{ id: 3, userName: 'user3', userId: 3, title: 'title3', views: 45, likes: 45, createdAt: new Date(2015, 9, 1) },
-		{ id: 4, userName: 'user4', userId: 4, title: 'title4', views: 35, likes: 44, createdAt: new Date(2016, 7, 1) },
-		{ id: 5, userName: 'user5', userId: 5, title: 'titl54', views: 355, likes: 454, createdAt: new Date(2014, 9, 1) },
-		{ id: 6, userName: 'user5', userId: 5, title: 'titl54', views: 355, likes: 454, createdAt: new Date(2010, 9, 1) },
-		{ id: 7, userName: 'user5', userId: 5, title: 'titl54', views: 355, likes: 454, createdAt: new Date(2016, 9, 1) },
-		{ id: 9, userName: 'user5', userId: 5, title: 'titl54', views: 355, likes: 454, createdAt: new Date(2001, 5, 1) },
-		{ id: 10, userName: 'vasya', userId: 5, title: 'titl54', views: 355, likes: 454, createdAt: new Date(2016, 9, 1) },
+	{
+		id: 1,
+		userName: 'petya',
+		userId: 1,
+		title: 'title1',
+		views: 2,
+		likes: 3,
+		createdAt: new Date(2016, 9, 1),
+	},
+	{
+		id: 2,
+		userName: 'user2',
+		userId: 2,
+		title: 'title2',
+		views: 3,
+		likes: 4,
+		createdAt: new Date(2016, 9, 1),
+	},
+	{
+		id: 3,
+		userName: 'user3',
+		userId: 3,
+		title: 'title3',
+		views: 45,
+		likes: 45,
+		createdAt: new Date(2015, 9, 1) },
+		{
+			id: 4,
+			userName: 'user4',
+			userId: 4,
+			title: 'title4',
+			views: 35,
+			likes: 44,
+			createdAt: new Date(2016, 7, 1) },
+		{
+			id: 5,
+			userName: 'user5',
+			userId: 5,
+			title: 'titl54',
+			views: 355,
+			likes: 454,
+			createdAt: new Date(2014, 9, 1) },
+		{
+			id: 6,
+			userName: 'user5',
+			userId: 5,
+			title: 'titl54',
+			views: 355,
+			likes: 454,
+			createdAt: new Date(2010, 9, 1) },
+		{
+			id: 7,
+			userName: 'user5',
+			userId: 5,
+			title: 'titl54',
+			views: 355,
+			likes: 454,
+			createdAt: new Date(2016, 9, 1) },
+		{
+			id: 9,
+			userName: 'user5',
+			userId: 5,
+			title: 'titl54',
+			views: 355,
+			likes: 454,
+			createdAt: new Date(2001, 5, 1) },
+		{
+			id: 10,
+			userName: 'vasya',
+			userId: 5,
+			title: 'titl54',
+			views: 355,
+			likes: 454,
+			createdAt: new Date(2016, 9, 1) },
 
 ];
 
@@ -60,14 +129,27 @@ const postsApi = new LocalStorageApi('/api/posts', posts);
 function recievePosts(paylod) {
 	return {
 		type: 'RECIEVE_POSTS',
-		paylod
+		paylod,
 	};
 }
+
 
 function setSearch(paylod) {
 	return {
 		type: 'SET_SEARCH',
-		paylod
+		paylod,
+	};
+}
+
+export function addPopup() {
+	return (dispatch) => {
+		dispatch({ type: 'SET_POPUP_VISIBLE', paylod: true });
+	};
+}
+
+export function onHide() {
+	return (dispatch) => {
+		dispatch({ type: 'SET_POPUP_VISIBLE', paylod: false });
 	};
 }
 
@@ -81,14 +163,13 @@ export function fetchPosts() {
 		const sort = {
 			field: sortField,
 			direction: sortDirection,
-		}
+		};
 		const query = {
 			userName: filter,
-		}
+		};
 		postsApi.getPage(query, sort, page, perPage).then(json => {
 			dispatch(recievePosts(json));
-		})
-
+		});
 	};
 }
 
@@ -98,7 +179,20 @@ export function toggleSort(field) {
 		dispatch(fetchPosts());
 	};
 }
-
+export function saveNewPost(title) {
+	return (dispatch, getState) => {
+		const userId = getState().auth.userId;
+		const userName = getState().auth.userName;
+		postsApi.create({ userName, userId, title, views: 0, likes: 0 })
+			.then(() => {
+				dispatch({
+					type: 'SET_POPUP_VISIBLE',
+					paylod: false,
+			});
+			dispatch(fetchPosts());
+		});
+	};
+}
 
 export function loadPosts() {
 	return (dispatch) => {
@@ -126,7 +220,6 @@ export function searchByName(query) {
 		dispatch(setPage(1));
 		dispatch(setSearch(query));
 		dispatch(fetchPosts());
-
 	};
 }
 

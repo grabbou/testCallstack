@@ -4,8 +4,10 @@ import { Grid, Row, Col } from 'react-bootstrap';
 import Filter from './Filter';
 import Pagination from './Pagination';
 import PageSize from './PageSize';
+import AddPopup from './AddPopup';
 import { connect } from 'react-redux';
 import { loadPosts } from 'reduxApp/modules/posts';
+
 
 @connect(
 	null,
@@ -19,8 +21,12 @@ class PostList extends Component{
 		return (
 			<Grid>
 				<Row> 
-					<Col xs={12}>
+
+					<Col xs={6}>
 						<Filter />
+					</Col> 
+					<Col xs={6}>
+						<AddPopup />
 					</Col> 
 				</Row>
 				<Row> 

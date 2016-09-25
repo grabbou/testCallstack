@@ -31,10 +31,20 @@ function getOnePage(items, page, perPage) {
     return items.slice(offset, offset + perPage);
 }
 
+function guid() {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  }
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+    s4() + '-' + s4() + s4() + s4();
+}
+
 function Api(url, defaultItems = []) {
     this.create = (data) => new Promise((resolve) => {
         setTimeout(() => {
-            const newItem = { ...data, id: new Date().getTime(), createAt: new Date() };
+            const newItem = { ...data, id: guid(), createdAt: new Date(2016, 9, 1) };
 
             const items = getItems(url, defaultItems);
 
