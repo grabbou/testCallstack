@@ -3,9 +3,9 @@ import { connect } from 'react-redux';
 import { Table } from 'react-bootstrap';
 import './index.css';
 import { toggleSort as toggleSortAction } from 'reduxApp/modules/posts';
-const PostRow = ({ post }) => {
+const PostRow = ({ post, active }) => {
 	return (
-		<tr>
+		<tr className={active ? 'warning' : ''}>
 			<td>{post.id}</td>
 			<td>{post.userName}</td>
 			<td>{post.title}</td>
@@ -33,7 +33,7 @@ const SortTh = ({ children, onClick, active, direction }) => {
 	);
 };
 
-export const PostTable = ({ posts, sortDirection, sortField, toggleSort }) => (
+export const PostTable = ({ posts, sortDirection, sortField, toggleSort, userId }) => (
 	<div>
 		<Table>
 			<thead>
@@ -72,7 +72,7 @@ export const PostTable = ({ posts, sortDirection, sortField, toggleSort }) => (
 			</thead>
 			<tbody>
 				{posts.map(post =>
-					<PostRow key={post.id} post={post} />
+					<PostRow active={post.userId === userId} key={post.id} post={post} />
 				)}
 			</tbody>
 
@@ -89,6 +89,7 @@ export default connect(
 		posts: state.posts.posts,
 		sortField: state.posts.sortField,
 		sortDirection: state.posts.sortDirection,
+		userId: state.auth.userId,
 	}),
 	{ toggleSort: toggleSortAction }
 
